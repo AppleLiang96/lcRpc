@@ -1,11 +1,16 @@
 package edu.shu.rpc;
 
 import edu.shu.annotation.RpcAutowired;
+import edu.shu.common.AsyncCallBack;
+import edu.shu.common.AsyncInvokeFuture;
+import edu.shu.common.RpcResponse;
 import edu.shu.service.HelloService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author AppleLiang
@@ -21,10 +26,22 @@ public class ServiceTest {
     HelloService helloService;
 
     @Test
-    public void helloTest1() {
-        String result = helloService.hello("World");
+    public void helloTest1() throws ExecutionException, InterruptedException {
+//        String result = helloService.asyncHello("World");
+        AsyncInvokeFuture future = helloService.asyncHello("World");
+        future.addCallBack(new AsyncCallBack() {
+            @Override
+            public void success(RpcResponse response) {
+                System.out.println("执行成功");
+            }
+
+            @Override
+            public void fail(RpcResponse response) {
+                System.out.println("执行失败");
+            }
+        });
         System.out.println("已发送请求");
-        System.out.println(result);
+        System.out.println(future.get());
     }
 
 //    @Test

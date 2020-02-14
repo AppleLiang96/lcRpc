@@ -1,6 +1,6 @@
 package edu.shu.handler;
 
-import edu.shu.async.AsyncInvokeFuture;
+import edu.shu.common.AsyncInvokeFuture;
 import edu.shu.common.RpcRequest;
 import edu.shu.common.RpcResponse;
 import io.netty.buffer.Unpooled;
@@ -12,16 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * @author liang
  * @create 2020/2/14 11:18 上午
  */
-public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> implements RpcHandler{
+public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> implements RpcHandler {
     private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     private static final ConcurrentHashMap<String, AsyncInvokeFuture> invokeMap = new ConcurrentHashMap<>();
@@ -32,6 +29,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> impl
     public Channel getChannel() {
         return channel;
     }
+
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(16, 16,
+            600L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(65536));
 
     public void setChannel(Channel channel) {
         this.channel = channel;
@@ -66,9 +66,29 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> impl
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         logger.info("收到来自服务器的响应, rpcResponse:{}", rpcResponse);
+        Object result = rpcResponse.getResult();
+        if (result instanceof AsyncInvokeFuture){
+            rpcResponse.setResult(((AsyncInvokeFuture) result).response.getResult());
+        }
         AsyncInvokeFuture asyncInvokeFuture = invokeMap.remove(rpcResponse.getSpanId());
         asyncInvokeFuture.response = rpcResponse;
+        runCallBack(asyncInvokeFuture);
         asyncInvokeFuture.countDownLatch.countDown();
+    }
+
+    private void runCallBack(AsyncInvokeFuture asyncInvokeFuture) {
+        if (asyncInvokeFuture.getCallBack() != null) {
+            threadPoolExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    if (asyncInvokeFuture.response.getException()==null){
+                        asyncInvokeFuture.getCallBack().success(asyncInvokeFuture.response);
+                    }else {
+                        asyncInvokeFuture.getCallBack().fail(asyncInvokeFuture.response);
+                    }
+                }
+            });
+        }
     }
 
     @Override

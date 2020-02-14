@@ -2,6 +2,8 @@ package edu.shu.rpc;
 
 
 import edu.shu.RpcService;
+import edu.shu.common.AsyncInvokeFuture;
+import edu.shu.common.RpcResponse;
 import edu.shu.service.HelloService;
 
 /**
@@ -13,12 +15,19 @@ import edu.shu.service.HelloService;
 public class HelloServiceImpl implements HelloService {
     @Override
     public String hello(String name) {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return "hello" +name;
     }
 
+    @Override
+    public AsyncInvokeFuture asyncHello(String name) {
+        AsyncInvokeFuture future = new AsyncInvokeFuture();
+        future.response = new RpcResponse();
+        future.response.setResult("async Hello "+ name);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return future;
+    }
 }

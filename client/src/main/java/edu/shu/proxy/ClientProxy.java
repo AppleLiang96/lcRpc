@@ -1,7 +1,7 @@
 package edu.shu.proxy;
 
 import edu.shu.async.AsyncInvoke;
-import edu.shu.async.AsyncInvokeFuture;
+import edu.shu.common.AsyncInvokeFuture;
 import edu.shu.common.RpcRequest;
 import edu.shu.handler.ClientHandler;
 import edu.shu.zookeeper.ConnectManage;
@@ -9,6 +9,7 @@ import edu.shu.zookeeper.ConnectManage;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 /**
  * @author liang
@@ -44,7 +45,7 @@ public class ClientProxy<T> implements InvocationHandler, AsyncInvoke {
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());
         request.setParameters(args);
-        if (method.getName().startsWith("async")){
+        if (Future.class.isAssignableFrom(method.getReturnType())){
             return asyncInvoke(request);
         }
         ClientHandler clientHandler = ConnectManage.getInstance().chooseHandler();
@@ -63,7 +64,7 @@ public class ClientProxy<T> implements InvocationHandler, AsyncInvoke {
     @Override
     public AsyncInvokeFuture asyncInvoke(RpcRequest request) {
         ClientHandler clientHandler = ConnectManage.getInstance().chooseHandler();
-        AsyncInvokeFuture rpcFuture = clientHandler.syncSend(request);
+        AsyncInvokeFuture rpcFuture = clientHandler.asyncSend(request);
         return rpcFuture;
     }
 }

@@ -1,5 +1,6 @@
 package edu.shu.async;
 
+import edu.shu.common.AsyncInvokeFuture;
 import edu.shu.common.RpcRequest;
 
 /**
