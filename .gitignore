@@ -1,0 +1,21 @@
+# Project exclude paths
+/api/target/
+/client/target/
+/server/target/
+/target/
+.svn
+.settings
+.classpath
+.project
+target
+classes
+output
+dist
+node_modules
+.idea/*
+base.iml
+*.jar
+WebContent
+webapp
+*.iml
+logs
