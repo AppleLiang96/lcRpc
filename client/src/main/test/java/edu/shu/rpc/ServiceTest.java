@@ -20,14 +20,17 @@ import java.util.concurrent.ExecutionException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:client-spring.xml")
 public class ServiceTest {
-//    @Autowired
-//    private RpcClient rpcClient;
+
     @RpcAutowired
     HelloService helloService;
 
+    /**
+     * 异步调用+callback支持
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @Test
-    public void helloTest1() throws ExecutionException, InterruptedException {
-//        String result = helloService.asyncHello("World");
+    public void asyncTest() throws ExecutionException, InterruptedException {
         AsyncInvokeFuture future = helloService.asyncHello("World");
         future.addCallBack(new AsyncCallBack() {
             @Override
@@ -44,19 +47,13 @@ public class ServiceTest {
         System.out.println(future.get());
     }
 
-//    @Test
-//    public void helloTest2() {
-//        PersonService personService = rpcClient.create(PersonService.class);
-//        List<Person> result = personService.GetTestPerson("World",1);
-//        System.out.println(result);
-//    }
+    /**
+     * 同步调用支持
+     */
+    @Test
+    public void helloTest2() {
+        String world = helloService.hello("World");
+        System.out.println(world);
+    }
 
-//    @Test
-//    public void helloFutureTest2() throws ExecutionException, InterruptedException {
-//        IAsyncObjectProxy helloService = rpcClient.createAsync(HelloService.class);
-//        Person person = new Person("Yong", "Huang");
-//        RPCFuture result = helloService.call("hello", person);
-//        System.out.println("已发送请求");
-//        System.out.println((String) result.get());
-//    }
 }

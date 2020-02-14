@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class RpcBootstrap {
 
     @Test
-    public void fun1() {
+    public void run() {
         new ClassPathXmlApplicationContext("server-spring.xml");
     }
 }
