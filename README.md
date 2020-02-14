@@ -1,4 +1,4 @@
-## 基于Spring，Zookeeper，Netty实现的简易版Dubbo
+## 简易版的Dubbo基于Spring，Zookeeper，Netty实现
 
 - 实现了同步调用（支持超时时间配置），异步回调调用（基于Future和CountDownLatch实现）。
 
