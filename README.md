@@ -38,8 +38,7 @@ public void helloTest2() {
 ```
 
 - 实现了基于消费者端的负载均衡。目前使用轮询，后续支持包括：轮询、随机、LRU等；
-
-- 实现了类似Dubbo的@Reference注解及@Service注解。
+- 实现了类似Dubbo的@Reference注解及@Service注解。主要通过在Spring的Bean加载过程中，使用定义好的**代理类对象**来替换掉域中**已经注入的helloService对象**。从而实现代理类对象自动注入。
 
 ```JAVA
 @RpcAutowired
