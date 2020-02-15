@@ -1,5 +1,6 @@
 package edu.shu;
 
+import edu.shu.common.RpcContext;
 import edu.shu.common.RpcRequest;
 import edu.shu.common.RpcResponse;
 import io.netty.channel.ChannelFuture;
@@ -12,6 +13,7 @@ import org.springframework.cglib.reflect.FastClass;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author liang
@@ -50,6 +52,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     private Object handle(RpcRequest request) throws InvocationTargetException {
         Object invoker = handlerMap.get(request.getClassName());
+        buildRpcContext(request, invoker);
         if (invoker==null){
             logger.error("request请求的服务没有注册！");
             return null;
@@ -70,6 +73,15 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         FastClass serviceFastClass = FastClass.create(serviceClass);
         int methodIndex = serviceFastClass.getIndex(methodName, parameterTypes);
         return serviceFastClass.invoke(methodIndex, invoker, parameters);
+    }
+
+    private void buildRpcContext(RpcRequest request, Object invoker) {
+        RpcContext context = RpcContext.getContext();
+        if (context.getCurThreadId()==null){
+            context.setCurThreadId(UUID.randomUUID().toString());
+        }
+        context.setTraceId(request.getTrace().getTraceId());
+        logger.info("链路跟踪, RpcContext:{}", context);
     }
 
     @Override

@@ -98,14 +98,15 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> impl
         channel.writeAndFlush(request);
         logger.info("客户端已发送请求：{}", request);
         try {
-            future.get(10000, TimeUnit.MILLISECONDS);
+            future.get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
         }
+//        catch (TimeoutException e) {
+//            e.printStackTrace();
+//        }
         return future;
     }
 

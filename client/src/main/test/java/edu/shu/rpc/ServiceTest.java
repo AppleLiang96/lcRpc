@@ -53,7 +53,9 @@ public class ServiceTest {
     @Test
     public void helloTest2() {
         String world = helloService.hello("World");
+        String world2 = helloService.hello("World11");
         System.out.println(world);
+        System.out.println(world2);
     }
 
 }

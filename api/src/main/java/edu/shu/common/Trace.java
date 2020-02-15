@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class Trace {
     private String traceId;
-    private Long parentId;
+    private String parentId;
 }

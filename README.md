@@ -37,7 +37,6 @@ public void helloTest2() {
 }
 ```
 
-- 实现了基于消费者端的负载均衡。目前使用轮询，后续支持包括：轮询、随机、LRU等；
 - 实现了类似Dubbo的@Reference注解及@Service注解。主要通过在Spring的Bean加载过程中，使用定义好的**代理类对象**来替换掉域中**已经注入的helloService对象**。从而实现代理类对象自动注入。
 
 ```JAVA
@@ -47,6 +46,33 @@ HelloService helloService;//在生产方只需这样注入服务即可
 @RpcService(HelloService.class)//在消费者端只需加入这个注解即可
 public class HelloServiceImpl implements HelloService
 ```
+
+- 利用ThreadLocal和TraceId简单实现了RPC框架的**链路跟踪**。
+
+```JAVA
+public class RpcContext {
+    private static final ThreadLocal<RpcContext> LOCAL = new ThreadLocal<RpcContext>() {
+        @Override
+        protected RpcContext initialValue() {
+            return new RpcContext();
+        }
+    };
+
+    protected RpcContext() {
+    }
+
+    public static RpcContext getContext() {
+        return LOCAL.get();
+    }
+
+    private String curThreadId;
+    private String traceId;
+}
+```
+
+
+
+- 实现了基于消费者端的负载均衡。目前使用轮询，后续支持包括：轮询、随机、LRU等；
 
 ### quckStart
 
